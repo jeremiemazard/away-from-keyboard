@@ -6,10 +6,10 @@ use std::time::Duration;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long, default_value_t = 5)]
+    #[arg(short, long, default_value_t = 30)]
     seconds: u32,
 
-    #[arg(short, long, default_value_t = 2)]
+    #[arg(short, long, default_value_t = 1)]
     pixels: i32,
 
     #[arg(short, long, default_value_t = false)]
@@ -21,6 +21,7 @@ fn main() {
 
     let mut enigo = Enigo::new();
     let mut last_mouse_location = enigo.mouse_location();
+    let mut sign: i32 = 1;
 
     loop {
         sleep(Duration::from_secs(args.seconds as u64));
@@ -30,13 +31,14 @@ fn main() {
 
         if afk {
             if args.verbose { println!("Idle. Moving mouse."); }
-            enigo.mouse_move_relative(args.pixels, args.pixels);
+            enigo.mouse_move_relative(sign * args.pixels, 0);
             sleep(Duration::from_millis(20));
             current_mouse_location = enigo.mouse_location();
         } else if args.verbose {
-            println!("User activity detected at {:?}", current_mouse_location);
+            println!("Activity detected at {:?}", current_mouse_location);
         }
 
+        sign *= -1;
         last_mouse_location = current_mouse_location;
     }
 }
